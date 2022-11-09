@@ -10,6 +10,8 @@ _postgres_packages:
   Debian:
     - postgresql-12
     - postgresql-client-12
+    - postgresql-12-postgis-3
+    - postgresql-12-postgis-3-scripts
   RedHat:
     - postgresql-server
     - postgresql-devel
