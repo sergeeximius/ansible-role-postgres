@@ -80,7 +80,7 @@
     db: "{{ item.db | default(omit) }}"
     password: "{{ item.password }}"
     expires: "{{ item.expires | default(omit) }}"
-    # port: "{{ postgres_port }}"
+    role_attr_flags: "{{ item.role_attr_flags }}"
     login_unix_socket: "{{ postgres_socket_directory }}"
   loop: "{{ postgres_users }}"
   loop_control:
