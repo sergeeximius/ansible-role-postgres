@@ -19,7 +19,7 @@
     state: directory
     owner: postgres
     group: postgres
-    mode: "700"
+    mode: "755"
 
 - name: Initialize database
   ansible.builtin.command:
