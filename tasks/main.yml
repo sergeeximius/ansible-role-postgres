@@ -30,6 +30,21 @@
   become_user: postgres
   become: yes
 
+- name: Configure postgres
+  ansible.builtin.lineinfile:
+    path: "{{ postgres_conf_dir }}/postgresql.conf"
+    regex: "^{{ item.name }} ="
+    line: "{{ item.name }} = '{{ item.value }}'"
+    create: yes
+    mode: "0644"
+  notify:
+    - Restart postgres
+  loop:
+    - name: listen_addresses
+      value: "{{ ansible_default_ipv4.address }}"
+  loop_control:
+    label: "{{ item.name }}"
+    
 - name: Create pg_hba.conf
   ansible.builtin.template:
     src: pg_hba.conf.j2
