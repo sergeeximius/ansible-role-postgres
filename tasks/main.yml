@@ -30,53 +30,6 @@
   become_user: postgres
   become: yes
 
-- name: Configure postgres
-  ansible.builtin.lineinfile:
-    path: "{{ postgres_conf_dir }}/postgresql.conf"
-    regex: "^{{ item.name }} ="
-    line: "{{ item.name }} = '{{ item.value }}'"
-    create: yes
-    mode: "0644"
-  notify:
-    - Restart postgres
-  loop:
-    - name: Port
-      value: "{{ postgres_port }}"
-    - name: Listen_addresses
-      value: "{{ postgres_listen_addresses }}"
-    - name: Unix_socket_directories
-      value: "{{ postgres_unix_socket_directories }}"
-    - name: Log_timezone
-      value: "{{ postgres_log_timezone }}"
-    - name: Datestyle
-      value: "{{ postgres_datestyle }}"
-    - name: Timezone
-      value: "{{ postgres_timezone }}"
-    - name: Default_text_search_config
-      value: "{{ postgres_default_text_search_config }}"
-  loop_control:
-    label: "{{ item.name }}"
-
-- name: Configure wal parameters
-  ansible.builtin.lineinfile:
-    path: "{{ postgres_conf_dir }}/postgresql.conf"
-    regex: "^{{ item.name }} ="
-    line: "{{ item.name }} = '{{ item.value }}'"
-    create: yes
-    mode: "0644"
-  notify:
-    - Restart postgres
-  loop:
-    - name: Max_wal_size
-      value: "{{ postgres_max_wal_size }}"
-    - name: Min_wal_size
-      value: "{{ postgres_min_wal_size }}"
-  loop_control:
-    label: "{{ item.name }}"
-  when:
-    - ansible_os_family not in [ "RedHat", "Rocky" ]
-    - ansible_distribution_major_version != "7"
-
 - name: Create pg_hba.conf
   ansible.builtin.template:
     src: pg_hba.conf.j2
@@ -106,6 +59,22 @@
 - name: Flush handlers again
   ansible.builtin.meta: flush_handlers
 
+- name: Create postgres users
+  community.postgresql.postgresql_user:
+    name: "{{ item.name }}"
+    db: "{{ item.db | default(omit) }}"
+    password: "{{ item.password }}"
+    expires: "{{ item.expires | default(omit) }}"
+    # port: "{{ postgres_port }}"
+    login_unix_socket: "{{ postgres_socket_directory }}"
+  loop: "{{ postgres_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - postgres_users is defined
+  become_user: postgres
+  become: yes
+  
 - name: Create postgres database
   community.postgresql.postgresql_db:
     name: "{{ item.name }}"
@@ -120,21 +89,5 @@
     label: "{{ item.name }}"
   when:
     - postgres_databases is defined
-  become_user: postgres
-  become: yes
-
-- name: Create postgres users
-  community.postgresql.postgresql_user:
-    name: "{{ item.name }}"
-    db: "{{ item.db | default(omit) }}"
-    password: "{{ item.password }}"
-    expires: "{{ item.expires | default(omit) }}"
-    # port: "{{ postgres_port }}"
-    login_unix_socket: "{{ postgres_socket_directory }}"
-  loop: "{{ postgres_users }}"
-  loop_control:
-    label: "{{ item.name }}"
-  when:
-    - postgres_users is defined
   become_user: postgres
   become: yes
