@@ -8,8 +8,8 @@ _postgres_packages:
     - postgresql
     - postgresql-dev
   Debian:
-    - postgresql
-    - postgresql-client
+    - postgresql-12
+    - postgresql-client-12
   RedHat:
     - postgresql-server
     - postgresql-devel
@@ -19,14 +19,14 @@ postgres_packages: "{{ _postgres_packages[ansible_os_family] | default(_postgres
 _postgres_dir:
   default: /var/lib/pgsql/data
   Alpine: /var/lib/pgsql
-  Debian: /var/lib/postgresql/11
+  Debian: /var/lib/postgresql/12
 
 postgres_dir: "{{ _postgres_dir[ansible_os_family] | default(_postgres_dir['default'] ) }}"
 
 _postgres_conf_dir:
   default: "{{ postgres_dir }}"
   Alpine: /etc/postgresql
-  Debian: /etc/postgresql/11/main
+  Debian: /etc/postgresql/12/main
 
 postgres_conf_dir: "{{ _postgres_conf_dir[ansible_os_family] | default(_postgres_conf_dir['default'] ) }}"
 
