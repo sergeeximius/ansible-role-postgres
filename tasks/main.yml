@@ -41,7 +41,7 @@
     - Restart postgres
   loop:
     - name: listen_addresses
-      value: "{{ ansible_default_ipv4.address }}"
+      value: "*"
   loop_control:
     label: "{{ item.name }}"
     
