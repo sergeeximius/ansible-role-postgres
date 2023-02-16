@@ -6,7 +6,7 @@
   run_once: yes
   delegate_to: localhost
 
-- name: Install postgres
+- name: Install postgres "{{ postgres_version }}"
   ansible.builtin.package:
     name: "{{ postgres_packages }}"
     state: present
@@ -44,7 +44,7 @@
       value: "*"
   loop_control:
     label: "{{ item.name }}"
-    
+
 - name: Create pg_hba.conf
   ansible.builtin.template:
     src: pg_hba.conf.j2
