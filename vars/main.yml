@@ -9,7 +9,9 @@ _postgres_version:
   Debian:
     default: 12
 
-postgres_version: "{{ _postgres_version[ansible_distribution][ansible_distribution_major_version] | default(_postgres_version[ansible_distribution]['default']) }}"
+# postgres_version: "{{ _postgres_version[ansible_distribution][ansible_distribution_major_version] | default(_postgres_version[ansible_distribution]['default']) }}"
+# Refact by CodeGPT
+postgres_version: "{{ _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) }}"
 
 _postgres_packages:
   default:
@@ -18,10 +20,10 @@ _postgres_packages:
     - postgresql
     - postgresql-dev
   Debian:
-    - postgresql-"{{ postgres_version }}"
-    - postgresql-client-"{{ postgres_version }}"
-    - postgresql-"{{ postgres_version }}"-postgis-3
-    - postgresql-"{{ postgres_version }}"-postgis-3-scripts
+    - postgresql-{{ postgres_version }}
+    - postgresql-client-{{ postgres_version }}
+    - postgresql-{{ postgres_version }}-postgis-3
+    - postgresql-{{ postgres_version }}-postgis-3-scripts
     - postgresql-contrib
   RedHat:
     - postgresql-server
