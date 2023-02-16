@@ -2,11 +2,11 @@
 # vars file for postgres
 
 _postgres_version:
-  ubuntu:
+  Ubuntu:
     '22': 14
     '20': 12
     default: 12
-  debian:
+  Debian:
     default: 12
 
 postgres_version: "{{ _postgres_version[ansible_distribution][ansible_distribution_major_version] | default(_postgres_version[ansible_distribution]['default']) }}"
