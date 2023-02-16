@@ -1,6 +1,18 @@
 ---
 # vars file for postgres
 
+_postgres_version_ubuntu:
+  22:
+    - 14
+  20:
+    - 12
+
+_postgres_version_debian:
+  default:
+    - 12
+
+postgres_version: "{{ ansible_distribution == 'Ubuntu' | ternary(_postgres_version_ubuntu[ansible_distribution_major_version] | default(12), _postgres_version_debian['default']) }}"
+
 _postgres_packages:
   default:
     - postgresql-server
@@ -8,10 +20,10 @@ _postgres_packages:
     - postgresql
     - postgresql-dev
   Debian:
-    - postgresql-12
-    - postgresql-client-12
-    - postgresql-12-postgis-3
-    - postgresql-12-postgis-3-scripts
+    - postgresql-"{{ postgres_version }}"
+    - postgresql-client-"{{ postgres_version }}"
+    - postgresql-"{{ postgres_version }}"-postgis-3
+    - postgresql-"{{ postgres_version }}"-postgis-3-scripts
     - postgresql-contrib
   RedHat:
     - postgresql-server
@@ -22,14 +34,14 @@ postgres_packages: "{{ _postgres_packages[ansible_os_family] | default(_postgres
 _postgres_dir:
   default: /var/lib/pgsql/data
   Alpine: /var/lib/pgsql
-  Debian: /var/lib/postgresql/12
+  Debian: /var/lib/postgresql/"{{ postgres_version }}"
 
 postgres_dir: "{{ _postgres_dir[ansible_os_family] | default(_postgres_dir['default'] ) }}"
 
 _postgres_conf_dir:
   default: "{{ postgres_dir }}"
   Alpine: /etc/postgresql
-  Debian: /etc/postgresql/12/main
+  Debian: /etc/postgresql/"{{ postgres_version }}"/main
 
 postgres_conf_dir: "{{ _postgres_conf_dir[ansible_os_family] | default(_postgres_conf_dir['default'] ) }}"
 
