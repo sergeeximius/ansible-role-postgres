@@ -34,14 +34,14 @@ postgres_packages: "{{ _postgres_packages[ansible_os_family] | default(_postgres
 _postgres_dir:
   default: /var/lib/pgsql/data
   Alpine: /var/lib/pgsql
-  Debian: /var/lib/postgresql/"{{ postgres_version }}"
+  Debian: /var/lib/postgresql/{{ postgres_version }}
 
 postgres_dir: "{{ _postgres_dir[ansible_os_family] | default(_postgres_dir['default'] ) }}"
 
 _postgres_conf_dir:
   default: "{{ postgres_dir }}"
   Alpine: /etc/postgresql
-  Debian: /etc/postgresql/"{{ postgres_version }}"/main
+  Debian: /etc/postgresql/{{ postgres_version }}/main
 
 postgres_conf_dir: "{{ _postgres_conf_dir[ansible_os_family] | default(_postgres_conf_dir['default'] ) }}"
 
