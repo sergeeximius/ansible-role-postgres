@@ -1,20 +1,24 @@
 ---
 # tasks file for postgres
 
-- name: Add PostgreSQL repository key
+- name: Ubuntu/Debian. Add PostgreSQL repository key
   ansible.builtin.apt_key:
     url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
     state: present
-  when: postgres_version | int !=
-    _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) | int
+  when:
+    - postgres_version | int !=
+     _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) | int
+    - ansible_os_family != "Debian"
 
-- name: Install PostgreSQL repo
+- name: Ubuntu/Debian. Install PostgreSQL repo
   ansible.builtin.apt_repository:
     repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_lsb.codename }}-pgdg main"
     state: present
     filename: pgdg
-  when: postgres_version | int !=
-    _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) | int
+  when:
+    - postgres_version | int !=
+     _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) | int
+    - ansible_os_family != "Debian"
 
 - name: Import assert.yml
   ansible.builtin.import_tasks: assert.yml
