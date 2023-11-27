@@ -40,3 +40,5 @@ postgres_hba_entries:
     user: all
     address: "::1/128"
     method: ident
+
+postgres_version: "{{ _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) }}"

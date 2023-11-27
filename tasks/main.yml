@@ -1,9 +1,24 @@
 ---
 # tasks file for postgres
 
+- name: Add PostgreSQL repository key
+  ansible.builtin.apt_key:
+    url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
+    state: present
+  when: postgres_version | int !=
+    _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) | int
+
+- name: Install PostgreSQL repo
+  ansible.builtin.apt_repository:
+    repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_lsb.codename }}-pgdg main"
+    state: present
+    filename: pgdg
+  when: postgres_version | int !=
+    _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) | int
+
 - name: Import assert.yml
   ansible.builtin.import_tasks: assert.yml
-  run_once: yes
+  run_once: true
   delegate_to: localhost
 
 - name: Install postgres "{{ postgres_version }}"
@@ -28,14 +43,14 @@
   when:
     - ansible_os_family != "Debian"
   become_user: postgres
-  become: yes
+  become: true
 
 - name: Configure postgres
   ansible.builtin.lineinfile:
     path: "{{ postgres_conf_dir }}/postgresql.conf"
     regex: "^{{ item.name }} ="
     line: "{{ item.name }} = '{{ item.value }}'"
-    create: yes
+    create: true
     mode: "0644"
   notify:
     - Restart postgres
@@ -49,7 +64,7 @@
   ansible.builtin.template:
     src: pg_hba.conf.j2
     dest: "{{ postgres_conf_dir }}/pg_hba.conf"
-    backup: yes
+    backup: true
     mode: "0644"
   notify:
     - Reload postgres
@@ -61,7 +76,7 @@
   ansible.builtin.service:
     name: postgresql
     state: started
-    enabled: yes
+    enabled: true
 
 - name: Install psycopg2-binary
   ansible.builtin.pip:
@@ -88,8 +103,8 @@
   when:
     - postgres_users is defined
   become_user: postgres
-  become: yes
-  
+  become: true
+
 - name: Create postgres database
   community.postgresql.postgresql_db:
     name: "{{ item.name }}"
@@ -105,4 +120,4 @@
   when:
     - postgres_databases is defined
   become_user: postgres
-  become: yes
+  become: true
