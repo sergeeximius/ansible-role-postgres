@@ -86,6 +86,7 @@
   ansible.builtin.pip:
     name: psycopg2-binary
     state: present
+    extra_args: --break-system-packages
   when:
     - postgres_databases is defined or
       postgres_users is defined
