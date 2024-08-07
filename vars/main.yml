@@ -3,6 +3,7 @@
 
 _postgres_version:
   Ubuntu:
+    '24': 16
     '22': 14
     '20': 12
     default: 12
