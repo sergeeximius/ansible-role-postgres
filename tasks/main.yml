@@ -20,6 +20,14 @@
      _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) | int
     - ansible_os_family == "Debian"
 
+- name: Ignore PEP 668 because it's silly
+  ansible.builtin.file:
+    path: "/usr/lib/{{ item }}/EXTERNALLY-MANAGED"
+    state: absent
+  with:
+    - python3.11
+    - python3.12
+
 - name: Import assert.yml
   ansible.builtin.import_tasks: assert.yml
   run_once: true
@@ -86,7 +94,6 @@
   ansible.builtin.pip:
     name: psycopg2-binary
     state: present
-    extra_args: --break-system-packages
   when:
     - postgres_databases is defined or
       postgres_users is defined
