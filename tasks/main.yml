@@ -24,7 +24,7 @@
   ansible.builtin.file:
     path: "/usr/lib/{{ item }}/EXTERNALLY-MANAGED"
     state: absent
-  with:
+  loop:
     - python3.11
     - python3.12
 
