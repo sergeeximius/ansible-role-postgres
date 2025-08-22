@@ -42,3 +42,8 @@ postgres_hba_entries:
     method: ident
 
 postgres_version: "{{ _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) }}"
+
+# If true (default) the role will install and initialize PostgreSQL server packages,
+# create data directory and manage the postgres service. Set to false to use the
+# role only for creating users/databases on an existing PostgreSQL installation.
+postgres_manage_install: true

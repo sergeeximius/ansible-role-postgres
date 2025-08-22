@@ -6,8 +6,8 @@
     url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
     state: present
   when:
-    - postgres_version | int !=
-     _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) | int
+    - postgres_manage_install | default(true)
+    - postgres_version | int != _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) | int
     - ansible_os_family == "Debian"
 
 - name: Ubuntu/Debian. Install PostgreSQL repo
@@ -16,8 +16,8 @@
     state: present
     filename: pgdg
   when:
-    - postgres_version | int !=
-     _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) | int
+    - postgres_manage_install | default(true)
+    - postgres_version | int != _postgres_version[ansible_distribution].get(ansible_distribution_major_version, _postgres_version[ansible_distribution]['default']) | int
     - ansible_os_family == "Debian"
 
 - name: Ignore PEP 668 because it's silly
@@ -39,6 +39,8 @@
     state: present
   notify:
     - Systemctl daemon-reexec
+  when:
+    - postgres_manage_install | default(true)
 
 - name: Create postgres data directory
   ansible.builtin.file:
@@ -47,12 +49,15 @@
     owner: postgres
     group: postgres
     mode: "755"
+  when:
+    - postgres_manage_install | default(true)
 
 - name: Initialize database
   ansible.builtin.command:
     cmd: initdb -D {{ postgres_dir }}
     creates: "{{ postgres_dir }}/PG_VERSION"
   when:
+    - postgres_manage_install | default(true)
     - ansible_os_family != "Debian"
   become_user: postgres
   become: true
@@ -71,6 +76,8 @@
       value: "*"
   loop_control:
     label: "{{ item.name }}"
+  when:
+    - postgres_manage_install | default(true)
 
 - name: Create pg_hba.conf
   ansible.builtin.template:
@@ -80,6 +87,8 @@
     mode: "0644"
   notify:
     - Reload postgres
+  when:
+    - postgres_manage_install | default(true)
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
@@ -89,14 +98,16 @@
     name: postgresql
     state: started
     enabled: true
+  when:
+    - postgres_manage_install | default(true)
 
 - name: Install psycopg2-binary
   ansible.builtin.pip:
     name: psycopg2-binary
     state: present
   when:
-    - postgres_databases is defined or
-      postgres_users is defined
+    - postgres_manage_install | default(true)
+    - postgres_databases is defined or postgres_users is defined
 
 - name: Flush handlers again
   ansible.builtin.meta: flush_handlers
