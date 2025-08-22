@@ -29,7 +29,8 @@
     - python3.12
 
 - name: Import assert.yml
-  ansible.builtin.import_tasks: assert.yml
+  ansible.builtin.import_tasks:
+    file: assert.yml
   run_once: true
   delegate_to: localhost
 
@@ -72,8 +73,37 @@
   notify:
     - Restart postgres
   loop:
-    - name: listen_addresses
-      value: "*"
+    - name: Port
+      value: "{{ postgres_port }}"
+    - name: Listen_addresses
+      value: "{{ postgres_listen_addresses }}"
+    - name: Unix_socket_directories
+      value: "{{ postgres_socket_directory }}"
+    - name: Log_timezone
+      value: "{{ postgres_log_timezone }}"
+    - name: Datestyle
+      value: "{{ postgres_datestyle }}"
+    - name: Timezone
+      value: "{{ postgres_timezone }}"
+    - name: Default_text_search_config
+      value: "{{ postgres_default_text_search_config }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Configure wal parameters
+  ansible.builtin.lineinfile:
+    path: "{{ postgres_conf_dir }}/postgresql.conf"
+    regex: "^{{ item.name }} ="
+    line: "{{ item.name }} = '{{ item.value }}'"
+    create: true
+    mode: "0644"
+  notify:
+    - Restart postgres
+  loop:
+    - name: Max_wal_size
+      value: "{{ postgres_max_wal_size }}"
+    - name: Min_wal_size
+      value: "{{ postgres_min_wal_size }}"
   loop_control:
     label: "{{ item.name }}"
   when:
@@ -100,6 +130,7 @@
     enabled: true
   when:
     - postgres_manage_install | default(true)
+    enabled: true
 
 - name: Install psycopg2-binary
   ansible.builtin.pip:
@@ -108,35 +139,20 @@
   when:
     - postgres_manage_install | default(true)
     - postgres_databases is defined or postgres_users is defined
+    - ansible_os_family != "Debian"
 
 - name: Flush handlers again
   ansible.builtin.meta: flush_handlers
 
-- name: Create postgres users
-  community.postgresql.postgresql_user:
-    name: "{{ item.name }}"
-    db: "{{ item.db | default(omit) }}"
-    password: "{{ item.password }}"
-    expires: "{{ item.expires | default(omit) }}"
-    role_attr_flags: "{{ item.role_attr_flags }}"
-    login_unix_socket: "{{ postgres_socket_directory }}"
-  loop: "{{ postgres_users }}"
-  loop_control:
-    label: "{{ item.name }}"
-  when:
-    - postgres_users is defined
-  become_user: postgres
-  become: true
-
 - name: Create postgres database
   community.postgresql.postgresql_db:
-    name: "{{ item.name }}"
+    db: "{{ item.name }}"
     encoding: "{{ item.encoding | default(omit) }}"
     conn_limit: "{{ item.conn_limit | default(omit) }}"
     owner: "{{ item.owner | default(omit) }}"
     trust_input: "{{ item.trust_input | default(omit) }}"
     state: "{{ item.state | default(omit) }}"
-    login_unix_socket: "{{ postgres_socket_directory }}"
+    port: "{{ postgres_port }}"
   loop: "{{ postgres_databases }}"
   loop_control:
     label: "{{ item.name }}"
@@ -144,3 +160,19 @@
     - postgres_databases is defined
   become_user: postgres
   become: true
+
+- name: Create postgres users
+  community.postgresql.postgresql_user:
+    user: "{{ item.name }}"
+    db: "{{ item.db | default(omit) }}"
+    password: "{{ item.password }}"
+    expires: "{{ item.expires | default(omit) }}"
+    port: "{{ postgres_port }}"
+  loop: "{{ postgres_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - postgres_users is defined
+  become_user: postgres
+  become: true
+  no_log: true
