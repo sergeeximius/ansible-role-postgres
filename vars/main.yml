@@ -1,15 +1,6 @@
 ---
 # vars file for postgres
 
-_postgres_version:
-  Ubuntu:
-    "24": 16
-    "22": 14
-    "20": 12
-    default: 12
-  Debian:
-    default: 12
-
 _postgres_packages:
   default:
     - postgresql-server
@@ -21,7 +12,6 @@ _postgres_packages:
     - postgresql-client-{{ postgres_version }}
     - postgresql-{{ postgres_version }}-postgis-3
     - postgresql-{{ postgres_version }}-postgis-3-scripts
-    # - postgresql-contrib
     - python3-psycopg2
   RedHat:
     - postgresql-server
@@ -35,6 +25,7 @@ _postgres_version:
     bionic: 10
     focal: 12
     jammy: 14
+    noble: 16
   Debian:
     bullseye: 13
     bookworm: 15
