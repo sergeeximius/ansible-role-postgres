@@ -49,7 +49,7 @@
     state: directory
     owner: postgres
     group: postgres
-    mode: "755"
+    mode: "700"
   when:
     - postgres_manage_install | default(true)
 
