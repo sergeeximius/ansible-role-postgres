@@ -1,6 +1,8 @@
 ---
 # vars file for postgres
 
+# The package name of postgresql differs between distributions.
+# This map is used to determine the correct package name for each distribution.
 _postgres_packages:
   default:
     - postgresql-server
