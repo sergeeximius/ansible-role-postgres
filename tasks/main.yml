@@ -89,6 +89,8 @@
       value: "{{ postgres_default_text_search_config }}"
   loop_control:
     label: "{{ item.name }}"
+  when:
+    - postgres_manage_install | default(true)
 
 - name: Configure wal parameters
   ansible.builtin.lineinfile:
