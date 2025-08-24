@@ -130,7 +130,6 @@
     enabled: true
   when:
     - postgres_manage_install | default(true)
-    enabled: true
 
 - name: Install psycopg2-binary
   ansible.builtin.pip:
