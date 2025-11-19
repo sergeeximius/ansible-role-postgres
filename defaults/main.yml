@@ -14,6 +14,11 @@ postgres_datestyle: iso, ymd
 postgres_timezone: UTC
 postgres_default_text_search_config: pg_catalog.english
 
+# Optional memory parameters (not set by default, PostgreSQL uses its defaults)
+# Recommended values:
+# postgres_shared_buffers: "256MB"        # 25% of available RAM for dedicated servers
+# postgres_effective_cache_size: "1GB"    # 50-75% of available RAM
+
 postgres_hba_entries:
   - type: local
     database: all

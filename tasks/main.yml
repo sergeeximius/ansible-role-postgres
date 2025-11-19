@@ -67,7 +67,7 @@
   ansible.builtin.lineinfile:
     path: "{{ postgres_conf_dir }}/postgresql.conf"
     regex: "^{{ item.name }} ="
-    line: "{{ item.name }} = '{{ item.value }}'"
+    line: "{{ item.name }} = {% if item.quote | default(false) %}'{{ item.value }}'{% else %}{{ item.value }}{% endif %}"
     create: true
     mode: "0644"
   notify:
@@ -75,18 +75,25 @@
   loop:
     - name: port
       value: "{{ postgres_port }}"
+      quote: false
     - name: listen_addresses
       value: "{{ postgres_listen_addresses }}"
+      quote: true
     - name: unix_socket_directories
       value: "{{ postgres_socket_directory }}"
+      quote: true
     - name: log_timezone
       value: "{{ postgres_log_timezone }}"
+      quote: true
     - name: datestyle
       value: "{{ postgres_datestyle }}"
+      quote: true
     - name: timezone
       value: "{{ postgres_timezone }}"
+      quote: true
     - name: default_text_search_config
       value: "{{ postgres_default_text_search_config }}"
+      quote: true
   loop_control:
     label: "{{ item.name }}"
   when:
@@ -112,6 +119,26 @@
     - ansible_os_family not in [ "RedHat", "Rocky" ]
     - ansible_distribution_major_version != "7"
     - postgres_manage_install | default(true)
+
+- name: Configure memory parameters
+  ansible.builtin.lineinfile:
+    path: "{{ postgres_conf_dir }}/postgresql.conf"
+    regex: "^{{ item.name }} ="
+    line: "{{ item.name }} = {{ item.value }}"
+    create: true
+    mode: "0644"
+  notify:
+    - Restart postgres
+  loop:
+    - name: shared_buffers
+      value: "{{ postgres_shared_buffers }}"
+    - name: effective_cache_size
+      value: "{{ postgres_effective_cache_size }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - postgres_manage_install | default(true)
+    - item.value is defined
 
 - name: Create pg_hba.conf
   ansible.builtin.template:
