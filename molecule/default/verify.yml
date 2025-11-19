@@ -5,19 +5,16 @@
   gather_facts: false
 
   tasks:
-    - name: Remove postgres users
-      community.postgresql.postgresql_user:
+    - name: Remove postgres database
+      community.postgresql.postgresql_db:
         name: test
-        db: test
-        port: 6543
         state: absent
       become_user: postgres
       become: true
 
-    - name: Remove postgres database
-      community.postgresql.postgresql_db:
+    - name: Remove postgres users
+      community.postgresql.postgresql_user:
         name: test
-        port: 6543
         state: absent
-      become: true
       become_user: postgres
+      become: true

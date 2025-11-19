@@ -153,7 +153,7 @@
     db: "{{ item.db | default(omit) }}"
     password: "{{ item.password }}"
     expires: "{{ item.expires | default(omit) }}"
-    role_attr_flags: "{{ item.role_attr_flags }}"
+    role_attr_flags: "{{ item.role_attr_flags | default(omit) }}"
     login_unix_socket: "{{ postgres_socket_directory }}"
   loop: "{{ postgres_users }}"
   loop_control:

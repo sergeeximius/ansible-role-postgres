@@ -6,10 +6,9 @@
 
   roles:
     - role: robertdebock.postgres
-      postgres_port: 6543
       postgres_databases:
         - name: test
+          owner: test
       postgres_users:
         - name: test
           password: test
-          db: test

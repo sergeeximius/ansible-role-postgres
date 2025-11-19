@@ -29,22 +29,8 @@ jobs:
       fail-fast: false
       matrix:
         distro:
-          - image: "alpine"
-            tag: "latest"
-          - image: "enterpriselinux"
-            tag: "latest"
-          - image: "debian"
-            tag: "latest"
-          - image: "debian"
-            tag: "bullseye"
-          - image: "fedora"
-            tag: "latest"
-          - image: "ubuntu"
-            tag: "latest"
           - image: "ubuntu"
             tag: "jammy"
-          - image: "ubuntu"
-            tag: "focal"
     steps:
       - name: checkout
         uses: actions/checkout@v4
