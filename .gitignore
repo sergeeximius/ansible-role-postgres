@@ -1,8 +1,7 @@
 .molecule
 *.log
 *.swp
-.tox
 .cache
 .DS_Store
-.vscode/settings.json
 .ansible
+.vscode/settings.json

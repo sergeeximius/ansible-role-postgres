@@ -73,19 +73,19 @@
   notify:
     - Restart postgres
   loop:
-    - name: Port
+    - name: port
       value: "{{ postgres_port }}"
-    - name: Listen_addresses
+    - name: listen_addresses
       value: "{{ postgres_listen_addresses }}"
-    - name: Unix_socket_directories
+    - name: unix_socket_directories
       value: "{{ postgres_socket_directory }}"
-    - name: Log_timezone
+    - name: log_timezone
       value: "{{ postgres_log_timezone }}"
-    - name: Datestyle
+    - name: datestyle
       value: "{{ postgres_datestyle }}"
-    - name: Timezone
+    - name: timezone
       value: "{{ postgres_timezone }}"
-    - name: Default_text_search_config
+    - name: default_text_search_config
       value: "{{ postgres_default_text_search_config }}"
   loop_control:
     label: "{{ item.name }}"
@@ -102,9 +102,9 @@
   notify:
     - Restart postgres
   loop:
-    - name: Max_wal_size
+    - name: max_wal_size
       value: "{{ postgres_max_wal_size }}"
-    - name: Min_wal_size
+    - name: min_wal_size
       value: "{{ postgres_min_wal_size }}"
   loop_control:
     label: "{{ item.name }}"
@@ -135,14 +135,14 @@
   when:
     - postgres_manage_install | default(true)
 
-- name: Install psycopg2-binary
+- name: Install psycopg2-binary (pip)
   ansible.builtin.pip:
     name: psycopg2-binary
     state: present
   when:
-    - postgres_databases is defined or postgres_users is defined
-    - ansible_os_family != "Debian"
-    - postgres_manage_install | default(true)
+    - postgres_databases is defined or
+      postgres_users is defined
+    - ansible_os_family not in [ "Alpine", "Debian", "RedHat" ]
 
 - name: Flush handlers again
   ansible.builtin.meta: flush_handlers
