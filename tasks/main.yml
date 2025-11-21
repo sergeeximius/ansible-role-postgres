@@ -67,38 +67,28 @@
   ansible.builtin.lineinfile:
     path: "{{ postgres_conf_dir }}/postgresql.conf"
     regex: "^{{ item.name }} ="
-    line: "{{ item.name }} = '{{ item.value }}'"
+    line: "{{ item.name }} = {{ item.value }}"
     create: true
     mode: "0644"
   notify:
     - Restart postgres
   loop:
+    - name: port
+      value: "{{ postgres_port }}"
     - name: listen_addresses
-      value: "{{ postgres_listen_addresses }}"
+      value: "'{{ postgres_listen_addresses }}'"
     - name: unix_socket_directories
-      value: "{{ postgres_socket_directory }}"
+      value: "'{{ postgres_socket_directory }}'"
     - name: log_timezone
-      value: "{{ postgres_log_timezone }}"
+      value: "'{{ postgres_log_timezone }}'"
     - name: datestyle
-      value: "{{ postgres_datestyle }}"
+      value: "'{{ postgres_datestyle }}'"
     - name: timezone
-      value: "{{ postgres_timezone }}"
+      value: "'{{ postgres_timezone }}'"
     - name: default_text_search_config
-      value: "{{ postgres_default_text_search_config }}"
+      value: "'{{ postgres_default_text_search_config }}'"
   loop_control:
     label: "{{ item.name }}"
-  when:
-    - postgres_manage_install | default(true)
-
-- name: Configure postgres port
-  ansible.builtin.lineinfile:
-    path: "{{ postgres_conf_dir }}/postgresql.conf"
-    regex: "^port ="
-    line: "port = {{ postgres_port }}"
-    create: true
-    mode: "0644"
-  notify:
-    - Restart postgres
   when:
     - postgres_manage_install | default(true)
 
@@ -113,9 +103,9 @@
     - Restart postgres
   loop:
     - name: max_wal_size
-      value: "{{ postgres_max_wal_size }}"
+      value: "'{{ postgres_max_wal_size }}'"
     - name: min_wal_size
-      value: "{{ postgres_min_wal_size }}"
+      value: "'{{ postgres_min_wal_size }}'"
   loop_control:
     label: "{{ item.name }}"
   when:
@@ -134,9 +124,9 @@
     - Restart postgres
   loop:
     - name: shared_buffers
-      value: "{{ postgres_shared_buffers }}"
+      value: "'{{ postgres_shared_buffers }}'"
     - name: effective_cache_size
-      value: "{{ postgres_effective_cache_size }}"
+      value: "'{{ postgres_effective_cache_size }}'"
   loop_control:
     label: "{{ item.name }}"
   when:
