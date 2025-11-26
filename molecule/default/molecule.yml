@@ -1,28 +1,33 @@
 ---
-#
-# Ansible managed
-#
 dependency:
   name: galaxy
   options:
     role-file: requirements.yml
     requirements-file: requirements.yml
-lint: |
-  set -e
-  yamllint .
-  ansible-lint
 driver:
   name: docker
 platforms:
-  - name: "postgres-${image:-fedora}-${tag:-latest}"
-    image: "${namespace:-robertdebock}/${image:-fedora}:${tag:-latest}"
+  - name: instance-ubuntu
+    image: robertdebock/ubuntu:latest
     command: /sbin/init
+    pre_build_image: true
+    privileged: true
     cgroupns_mode: host
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
-    privileged: true
+  - name: instance-debian12
+    image: robertdebock/debian:bookworm
+    command: /sbin/init
     pre_build_image: true
+    privileged: true
+    cgroupns_mode: host
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
 provisioner:
   name: ansible
+  config_options:
+    defaults:
+      interpreter_python: auto
+      roles_path: ${MOLECULE_PROJECT_DIRECTORY}/..
 verifier:
-  name: ansible
+  name: testinfra
