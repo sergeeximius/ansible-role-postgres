@@ -37,6 +37,7 @@ def test_postgresql_config_exists(host):
     """Test that PostgreSQL main config exists."""
     # Ubuntu 24.04 uses PostgreSQL 16
     possible_paths = [
+        "/etc/postgresql/17/main/postgresql.conf",
         "/etc/postgresql/16/main/postgresql.conf",
         "/etc/postgresql/15/main/postgresql.conf",
         "/etc/postgresql/14/main/postgresql.conf",
@@ -54,6 +55,7 @@ def test_postgresql_config_exists(host):
 def test_pg_hba_config_exists(host):
     """Test that pg_hba.conf exists."""
     possible_paths = [
+        "/etc/postgresql/17/main/pg_hba.conf",
         "/etc/postgresql/16/main/pg_hba.conf",
         "/etc/postgresql/15/main/pg_hba.conf",
         "/etc/postgresql/14/main/pg_hba.conf",
@@ -82,3 +84,20 @@ def test_test_user_exists(host):
         "sudo -u postgres psql -tAc \"SELECT 1 FROM pg_roles WHERE rolname='test'\""
     )
     assert cmd.stdout.strip() == "1", "Test user does not exist"
+
+def test_postgres_version(host):
+    """Test that the correct postgres version is installed."""
+    # Get the installed version
+    cmd = host.run("psql --version")
+    assert cmd.succeeded
+    
+    # Check version based on hostname
+    hostname = host.backend.get_hostname()
+    if "pg17" in hostname:
+        assert "17" in cmd.stdout
+    elif "ubuntu" in hostname:
+        # Ubuntu 22.04 (jammy) default in vars/main.yml is 14
+        assert "14" in cmd.stdout
+    elif "debian12" in hostname:
+        # Debian 12 (bookworm) default in vars/main.yml is 15
+        assert "15" in cmd.stdout

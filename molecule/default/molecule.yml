@@ -7,16 +7,24 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: instance-ubuntu
-    image: robertdebock/ubuntu:latest
+  - name: instance-debian12
+    image: robertdebock/debian:bookworm
     command: /sbin/init
     pre_build_image: true
     privileged: true
     cgroupns_mode: host
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
-  - name: instance-debian12
-    image: robertdebock/debian:bookworm
+  - name: instance-ubuntu-2204-default
+    image: robertdebock/ubuntu:jammy
+    command: /sbin/init
+    pre_build_image: true
+    privileged: true
+    cgroupns_mode: host
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+  - name: instance-ubuntu-2204-pg17
+    image: robertdebock/ubuntu:jammy
     command: /sbin/init
     pre_build_image: true
     privileged: true
