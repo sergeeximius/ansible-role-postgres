@@ -5,3 +5,4 @@
 .DS_Store
 .ansible
 .vscode/settings.json
+__pycache__/
